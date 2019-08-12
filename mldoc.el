@@ -108,7 +108,7 @@ The definition is (lambda ARGLIST [DOCSTRING] BODY...)."
       (apply #'propertize str (mldoc--propertizers-to-list prop)))))
 
 (cl-defmacro mldoc-list (spec &key function propertizers args current-arg values)
-  ""
+  "Build a list acceptable by MLDoc."
   `(list ,spec
          :function ,function
          :propertizers ,propertizers
