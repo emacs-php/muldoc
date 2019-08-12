@@ -1,1 +1,56 @@
 * MLDoc - Multi ElDoc integration
+*MLDoc* extends ElDoc and makes function definition very easy.
+** What is ElDoc?
+[[https://www.emacswiki.org/emacs/ElDoc][ElDoc]] is a minor mode to show documentation in echo area.
+ElDoc function is implemented for several languages besides Emacs Lisp.
+** Why MLDoc?
+MLDoc solves ElDoc problem.
+- ElDoc can usually only register one or two functions.
+- ElDoc implementations are difficult to understand and tends to be untestable.
+MLDoc has APIs for end users and Lisp package developers.
+** API for users
+*Note*: no end-user MLDoc implementation yet.
+#+BEGIN_SRC emacs-lisp
+(defun my-foo-mode-setup ()
+  "Setup function for `foo-mode'."
+  (mldoc-mode 1)
+  (setq mldoc-documentation-functions '(mldoc-foo mldoc-html)))
+
+(with-eval-after-load "foo-mode"
+  (add-hook 'foo-mode-hook 'my-foo-mode-setup))
+#+END_SRC
+** API for developers
+*** MLDoc DSL
+**** Example
+#+BEGIN_SRC emacs-lisp
+(defcustom mldoc-foo-function-spec
+  '(return-type " " function "(" (args ", " type " " name) ")")
+  "MLDoc display spec for Foo function call."
+  :group 'mldoc-foo
+  :type 'sexp)
+
+(define-mldoc mldoc-foo
+  "MLDoc function for Foo language."
+  ;; This function is extremely simplified, but represents the specification of
+  ;; the value that an actual implementation should return.
+  (mldoc-list mldoc-foo-function-spec :function "print"
+              :args '((:type "string" :name "message"))
+              :current-arg 0))
+#+END_SRC
+**** Format
+Actually the DSL is just a list.  Its structure is =(cons spec plist)=.
+***** spec
+*spec* is a notation for converting a list to a string.
+- ="string"=: Just combined with that value.
+- =:keyword=: The value passed as a keyword in =plist=.
+- =symbol=: Symbol is evaluated as a variable name.
+- =(args separator &optional argspec)=: This looks like a function, but combines =:args= with =separator=.
+  - *separator*: In languages similar to C, =", "= is assumed.
+  - *argspec*: spec for arguments.
+***** plist
+It is an [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Property-Lists.html#Property-Lists][Property List]] with the following keys.
+- =:args=: List of =string= or =plist=.
+- =:current-arg=: 0-origin current position of argument list.
+*** macro =(define-mldoc name docstring &rest body)=
+This macro is very similar to defun.
+It's actually just a defun wrapper, but it is responsible for converting between MLDoc DSL and ElDoc output formats.
