@@ -31,7 +31,8 @@
 (require 'cl-lib)
 (require 'eldoc)
 (require 'nadvice)
-
+
+;; Custom variables:
 (defgroup mldoc nil
   "Multi ElDoc integration"
   :group 'tools)
@@ -52,7 +53,22 @@
 
 (defvar-local mldoc-returns-string t
   "When not-NIL, MLDoc functions return ElDoc complatible string.")
+
+;; Utility functions
+(defsubst mldoc-in-string ()
+  "Return non-nil if inside a string.
+it is the character that will terminate the string, or t if the string should be terminated by a generic string delimiter."
+  (nth 3 (syntax-ppss)))
 
+(defsubst mldoc-in-comment ()
+  "Return nil if outside a comment, t if inside a non-nestable comment, else an integer (the current comment nesting)."
+  (nth 4 (syntax-ppss)))
+
+(defsubst mldoc-in-string-or-comment ()
+  "Return character address of start of comment or string; nil if not in one."
+  (nth 8 (syntax-ppss)))
+
+;; Macros
 (defmacro define-mldoc (name docstring &rest body)
   "Define `NAME' as a ElDoc-MLDOC compatible function.
 The definition is (lambda ARGLIST [DOCSTRING] BODY...)."
