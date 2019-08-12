@@ -124,7 +124,6 @@ integer `:current-arg'
 plist `values'
     Property list of (:name value)
 "
-  (message "spec: %s" spec)
   (setq values (plist-put values :function function))
   (setq values (plist-put values :args args))
   (setq propertizers (append propertizers mldoc-default-eldoc-propertizers))
