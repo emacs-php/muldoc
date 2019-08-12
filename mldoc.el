@@ -77,7 +77,7 @@ The definition is (lambda ARGLIST [DOCSTRING] BODY...)."
      ,docstring
      (let ((doc (save-excursion ,@body)))
        (if mldoc-returns-string
-           (mapconcat #'identity (apply #'mldoc-build-list doc) "")
+           (mapconcat #'identity (apply #'mldoc--build-list doc) "")
          doc))))
 
 (defun mldoc--propertize-args (args current-arg arg-separator)
@@ -116,7 +116,7 @@ The definition is (lambda ARGLIST [DOCSTRING] BODY...)."
          :current-arg ,current-arg
          :values ,values))
 
-(cl-defun mldoc-build-list (spec &key function propertizers args current-arg values)
+(cl-defun mldoc--build-list (spec &key function propertizers args current-arg values)
   "Return a list of propertized string for ElDoc.
 
 integer `:current-arg'
@@ -148,7 +148,7 @@ plist `values'
          (documentation (cl-loop for f in mldoc-documentation-functions
                                  thereis (funcall f))))
     (when documentation
-      (mapconcat #'identity (apply #'mldoc-build-list documentation) ""))))
+      (mapconcat #'identity (apply #'mldoc--build-list documentation) ""))))
 
 ;;;###autoload
 (define-minor-mode mldoc-mode
