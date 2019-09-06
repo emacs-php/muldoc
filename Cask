@@ -1,4 +1,4 @@
-(package "mldoc" "0.2.0" "Multi ElDoc integration")
+(package "mldoc" "0.2.1" "Multi ElDoc integration")
 (source melpa)
 (source gnu)
 

@@ -4,7 +4,7 @@
 
 ;; Author: USAMI Kenta <tadsan@zonu.me>
 ;; Created: 25 Jul 2019
-;; Version: 0.2.0
+;; Version: 0.2.1
 ;; Keywords: tools, extension
 ;; Homepage: https://github.com/emacs-php/mldoc
 ;; Package-Requires: ((emacs "24.4"))
