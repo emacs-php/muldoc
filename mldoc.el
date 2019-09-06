@@ -4,10 +4,10 @@
 
 ;; Author: USAMI Kenta <tadsan@zonu.me>
 ;; Created: 25 Jul 2019
-;; Version: 0.1.0
-;; Keywords: tools, lisp
+;; Version: 0.2.0
+;; Keywords: tools, extension
 ;; Homepage: https://github.com/emacs-php/mldoc
-;; Package-Requires: ((emacs "24.4") (cl-lib "0.5"))
+;; Package-Requires: ((emacs "24.4"))
 ;; License: GPL-3.0-or-later
 
 ;; This program is free software; you can redistribute it and/or modify
