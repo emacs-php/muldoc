@@ -24,7 +24,7 @@ MLDoc has APIs for end users and Lisp package developers.
 **** Example
 #+BEGIN_SRC emacs-lisp
 (defcustom mldoc-foo-function-spec
-  '(return-type " " function "(" (args ", " type " " name) ")")
+  '(return-type " " function "(" (args ", " :type " " :name) ")")
   "MLDoc display spec for Foo function call."
   :group 'mldoc-foo
   :type 'sexp)

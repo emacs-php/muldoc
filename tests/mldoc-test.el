@@ -40,7 +40,35 @@
             ,(mldoc--build-list '(:foo ": " :function)
                            :function "f" :values (list :foo "hoge"))
             ,(list "hoge" ": "
-                   (propertize "f" 'face font-lock-function-name-face))))))
+                   (propertize "f" 'face font-lock-function-name-face)))
+           ("Spec has arg list"
+            ,(mldoc--build-list '(:function "(" (args ", ") ")")
+                           :function "f"
+                           :args '("a" "b" "c")
+                           :current-arg 2)
+            ,(list (propertize "f" 'face font-lock-function-name-face)
+                   "("
+                   (concat  "a, " (propertize "b" 'face '(:weight bold)) ", c")
+                   ")"))
+           )))
+    (cl-loop for (desc actual expected) in data
+             do (should (equal (cons desc expected) (cons desc actual))))))
+
+(ert-deftest mldoc-test--propertize-arg ()
+  (let ((data
+         ;; (mldoc--propertize-arg arg is-current-arg arg-spec)
+         `(("Simple argument"
+            ,(mldoc--propertize-arg '(:name "a") nil '(:name))
+            ,(list "a"))
+           ("Simple argument and current argument"
+            ,(mldoc--propertize-arg '(:name "a") t '(:name))
+            ,(list (propertize "a" 'face '(:weight bold))))
+           ("Argument has :name and :type"
+            ,(mldoc--propertize-arg '(:name "a" :type "string")
+                               nil
+                               '(:name " / " :type))
+            ,(list "a" " / "
+                   (propertize "string" 'face font-lock-function-name-face))))))
     (cl-loop for (desc actual expected) in data
              do (should (equal (cons desc expected) (cons desc actual))))))
 
