@@ -20,4 +20,4 @@ clean:
 	rm -f $(ELCS) $(AUTOLOADS)
 
 test: clean all
-	$(EMACS) -Q -batch -L . -l mldoc-test.el -f ert-run-tests-batch-and-exit
+	$(EMACS) -Q -batch -L . -l tests/mldoc-test.el -f ert-run-tests-batch-and-exit
