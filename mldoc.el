@@ -100,7 +100,7 @@ The definition is (lambda ARGLIST [DOCSTRING] BODY...)."
 (defun mldoc--propertize-args (args current-arg arg-separator &optional arg-spec)
   "Return propertized string by `ARGS' list, `CURRENT-ARG', `ARG-SEPARATOR' and `ARG-SPEC'."
   (mapconcat
-   #'identity
+   #'append
    (cl-loop for arg in args
             for n = 0 then (1+ n)
             append
