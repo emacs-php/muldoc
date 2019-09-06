@@ -53,6 +53,9 @@
 
 (defvar-local mldoc-returns-string t
   "When not-NIL, MLDoc functions return ElDoc complatible string.")
+
+(defvar-local mldoc-propertizer* nil
+  "Dynamic bound list of propertizers.")
 
 ;; Utility functions
 (defsubst mldoc-in-string ()
@@ -80,15 +83,31 @@ The definition is (lambda ARGLIST [DOCSTRING] BODY...)."
            (mapconcat #'identity (apply #'mldoc--build-list doc) "")
          doc))))
 
-(defun mldoc--propertize-args (args current-arg arg-separator)
-  "Return propertized string by `ARGS' list, `CURRENT-ARG' and `ARG-SEPARATOR'."
+(defun mldoc--propertize-arg (arg is-current-arg arg-spec)
+  "Propertize `ARG' by `IS-CURRENT-ARG' and `ARG-SPEC'."
+  (cl-loop
+   for spec in arg-spec
+   collect
+   (if (stringp spec)
+       spec
+     (let ((v (plist-get arg spec)))
+       (if (null v)
+           ""
+         (if (and is-current-arg (eq :name spec))
+             (propertize v 'face '(:weight bold))
+           (mldoc--propertize-keyword arg spec)))))))
+
+(defun mldoc--propertize-args (args current-arg arg-separator &optional arg-spec)
+  "Return propertized string by `ARGS' list, `CURRENT-ARG', `ARG-SEPARATOR' and `ARG-SPEC'."
   (mapconcat
    #'identity
    (cl-loop for arg in args
             for n = 0 then (1+ n)
-            collect (if (not (and current-arg (eq n current-arg)))
-                        arg
-                      (propertize arg 'face '(:weight bold))))
+            append
+            (mldoc--propertize-arg
+             (if (stringp arg) (list :name arg) arg)
+             (eq current-arg n)
+             (or arg-spec (list :name))))
    (or arg-separator ", ")))
 
 (defun mldoc--propertizers-to-list (propertizer)
@@ -96,15 +115,15 @@ The definition is (lambda ARGLIST [DOCSTRING] BODY...)."
   (cl-loop for (p . sym) in propertizer
            append (list p (symbol-value sym))))
 
-(defun mldoc--propertize-keyword (values key propertizers)
+(defun mldoc--propertize-keyword (values key)
   "Return propertized string `KEY' in `VALUES' plist, by `FACES'."
   (let* ((val (plist-get values key))
-         (str (if (stringp val)
-                  val
-                (funcall val)))
-         (prop (cdr-safe (assq key propertizers))))
+         (str (if (functionp val)
+                  (funcall val)
+                val))
+         (prop (cdr-safe (assq key mldoc-propertizer*))))
     (if (null prop)
-        str
+        (or str "")
       (apply #'propertize str (mldoc--propertizers-to-list prop)))))
 
 (cl-defmacro mldoc-list (spec &key function propertizers args current-arg values)
@@ -126,20 +145,20 @@ plist `values'
 "
   (setq values (plist-put values :function function))
   (setq values (plist-put values :args args))
-  (setq propertizers (append propertizers mldoc-default-eldoc-propertizers))
-
-  (cl-loop
-   for s in spec collect
-   (cond
-    ((stringp s) s)
-    ((symbolp s)
-     (if (not (keywordp s))
-         (symbol-value s)
-       (mldoc--propertize-keyword values s propertizers)))
-    ((listp s)
-     (if (eq 'args (car s))
-         (mldoc--propertize-args args current-arg (nth 1 s))
-       (apply (car s) (cdr s)))))))
+  (let ((mldoc-propertizer*
+         (append propertizers mldoc-default-eldoc-propertizers)))
+    (cl-loop
+     for s in spec collect
+     (cond
+      ((stringp s) s)
+      ((symbolp s)
+       (if (not (keywordp s))
+           (symbol-value s)
+         (mldoc--propertize-keyword values s)))
+      ((listp s)
+       (if (eq 'args (car s))
+           (mldoc--propertize-args args current-arg (nth 1 s) (cddr s))
+         (apply (car s) (cdr s))))))))
 
 (defun mldoc-eldoc-function ()
   "ElDoc backend function by MLDoc package."
