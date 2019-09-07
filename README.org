@@ -47,6 +47,9 @@ Actually the DSL is just a list.  Its structure is =(cons spec plist)=.
 - =(args separator &optional argspec)=: This looks like a function, but combines =:args= with =separator=.
   - *separator*: In languages similar to C, =", "= is assumed.
   - *argspec*: spec for arguments.
+- =(eval ...)=: The expression following =eval= is evaluated as Emacs Lisp.
+- =(if cond then ...else)=, =(when cond ...body)==, =(unless cond ...body)=: Same as Emacs Lisp.
+- Any other list is evaluated as a Emacs Lisp expression.
 ***** plist
 It is an [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Property-Lists.html#Property-Lists][Property List]] with the following keys.
 - =:args=: List of =string= or =plist=.

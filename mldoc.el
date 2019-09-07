@@ -155,10 +155,19 @@ plist `values'
        (if (not (keywordp s))
            (symbol-value s)
          (mldoc--propertize-keyword values s)))
-      ((listp s)
-       (if (eq 'args (car s))
-           (mldoc--propertize-args args current-arg (nth 1 s) (cddr s))
-         (apply (car s) (cdr s))))))))
+      ((listp s) (mldoc--evalute-spec s args current-arg))))))
+
+(defun mldoc--evalute-spec (spec args current-arg)
+  "Evalute `ARGS' and embedded element of `SPEC'."
+  (let ((f (car spec))
+        (rest (cdr spec)))
+    (cl-case f
+      (args (mldoc--propertize-args args current-arg (car rest) (cdr rest)))
+      (if (if (eval (car rest)) (eval (nth 1 rest)) (eval (cons 'progn (cddr rest)))))
+      (when (when (eval (car rest)) (eval (cons 'progn (cdr rest)))))
+      (unless (unless (eval (car rest)) (eval (cons 'progn (cdr rest)))))
+      (eval (eval (cons 'progn rest)))
+      (t (eval spec)))))
 
 (defun mldoc-eldoc-function ()
   "ElDoc backend function by MLDoc package."

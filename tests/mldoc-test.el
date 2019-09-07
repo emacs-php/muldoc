@@ -72,5 +72,40 @@
     (cl-loop for (desc actual expected) in data
              do (should (equal (cons desc expected) (cons desc actual))))))
 
+(ert-deftest mldoc-test--evalute-spec ()
+  (let ((data
+         `(("if-spec passed `T' as cond, returns 1."
+            ,(mldoc--evalute-spec '(if (eq 1 1) 1 2) nil nil)
+            1)
+           ("if-spec passed `NIL' as cond, returns 2."
+            ,(mldoc--evalute-spec '(if (eq 1 2) 1 2) nil nil)
+            2)
+           ("if-spec passed `NIL' as cond and multiple else clause, returns 3."
+            ,(mldoc--evalute-spec '(if (eq 1 2) 1 2 3) nil nil)
+            3)
+           ("when-spec passed `T', return 1."
+            ,(mldoc--evalute-spec '(when (eq 1 1) 1) nil nil)
+            1)
+           ("when-spec passed `NIL', return NIL."
+            ,(mldoc--evalute-spec '(when (eq 1 2) 1) nil nil)
+            nil)
+           ("unless-spec passed `T', return `NIL'."
+            ,(mldoc--evalute-spec '(unless (eq 1 1) 1) nil nil)
+            nil)
+           ("unless-spec passed `NIL', return 1."
+            ,(mldoc--evalute-spec '(unless (eq 1 2) 1) nil nil)
+            1)
+           ("eval-spec passed `1', return 1."
+            ,(mldoc--evalute-spec '(eval 1) nil nil)
+            1)
+           ("eval-spec passed `emacs-version', return value of emacs-version."
+            ,(mldoc--evalute-spec '(eval emacs-version) nil nil)
+            ,emacs-version)
+           ("function-spec passed `(symbol-value emacs-version)', return value of emacs-version."
+            ,(mldoc--evalute-spec '(symbol-value 'emacs-version) nil nil)
+            ,emacs-version))))
+    (cl-loop for (desc actual expected) in data
+             do (should (equal (cons desc expected) (cons desc actual))))))
+
 (provide 'mldoc-test)
 ;;; mldoc-test.el ends here
