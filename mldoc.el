@@ -73,7 +73,7 @@ it is the character that will terminate the string, or t if the string should be
 
 ;; Macros
 (defmacro define-mldoc (name docstring &rest body)
-  "Define `NAME' as a ElDoc-MLDOC compatible function.
+  "Define NAME as a ElDoc-MLDOC compatible function.
 The definition is (lambda ARGLIST [DOCSTRING] BODY...)."
   (declare (doc-string 2) (indent defun))
   `(defun ,name ()
@@ -84,7 +84,7 @@ The definition is (lambda ARGLIST [DOCSTRING] BODY...)."
          doc))))
 
 (defun mldoc--propertize-arg (arg is-current-arg arg-spec)
-  "Propertize `ARG' by `IS-CURRENT-ARG' and `ARG-SPEC'."
+  "Propertize ARG by IS-CURRENT-ARG and ARG-SPEC."
   (cl-loop
    for spec in arg-spec
    collect
@@ -98,7 +98,7 @@ The definition is (lambda ARGLIST [DOCSTRING] BODY...)."
            (mldoc--propertize-keyword arg spec)))))))
 
 (defun mldoc--propertize-args (args current-arg arg-separator &optional arg-spec)
-  "Return propertized string by `ARGS' list, `CURRENT-ARG', `ARG-SEPARATOR' and `ARG-SPEC'."
+  "Return propertized string by ARGS list, CURRENT-ARG, ARG-SEPARATOR and ARG-SPEC."
   (mapconcat
    #'append
    (cl-loop for arg in args
@@ -111,12 +111,12 @@ The definition is (lambda ARGLIST [DOCSTRING] BODY...)."
    (or arg-separator ", ")))
 
 (defun mldoc--propertizers-to-list (propertizer)
-  "Return list for function `propertize' by `PROPERTIZER' alist."
+  "Return list for function `propertize' by PROPERTIZER alist."
   (cl-loop for (p . sym) in propertizer
            append (list p (symbol-value sym))))
 
 (defun mldoc--propertize-keyword (values key)
-  "Return propertized string `KEY' in `VALUES' plist, by `FACES'."
+  "Return propertized string KEY in VALUES plist."
   (let* ((val (plist-get values key))
          (str (if (functionp val)
                   (funcall val)
@@ -158,7 +158,7 @@ plist `values'
       ((listp s) (mldoc--evalute-spec s args current-arg))))))
 
 (defun mldoc--evalute-spec (spec args current-arg)
-  "Evalute `ARGS' and embedded element of `SPEC'."
+  "Evalute ARGS and embedded element of SPEC."
   (let ((f (car spec))
         (rest (cdr spec)))
     (cl-case f
