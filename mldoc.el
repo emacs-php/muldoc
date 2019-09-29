@@ -51,6 +51,8 @@
 (defvar-local mldoc-documentation-functions nil
   "Functions to call to doc string.")
 
+(defvar-local mldoc--old-eldoc-documentation-function nil)
+
 (defvar-local mldoc-returns-string t
   "When not-NIL, MLDoc functions return ElDoc complatible string.")
 
@@ -177,15 +179,26 @@ plist `values'
     (when documentation
       (mapconcat #'identity (apply #'mldoc--build-list documentation) ""))))
 
-;;;###autoload
-(define-minor-mode mldoc-mode
-  "Minor mode for Multi ElDoc."
+(defun mldoc--setup-variables ()
+  "Setup variables for turn on mldoc-mode."
+  (setq mldoc--old-eldoc-documentation-function eldoc-documentation-function)
   (if (and eldoc-documentation-function
            (not mldoc-mode-advice-when-eldoc-is-set))
       (add-function :before-until (local 'eldoc-documentation-function)
                     #'mldoc-eldoc-function)
     (setq-local eldoc-documentation-function #'mldoc-eldoc-function))
   (eldoc-mode 1))
+
+(defun mldoc--restore-variables ()
+  "Restore variables for turn off mldoc-mode."
+  (setq-local eldoc-documentation-function mldoc--old-eldoc-documentation-function))
+
+;;;###autoload
+(define-minor-mode mldoc-mode
+  "Minor mode for Multi ElDoc."
+  (if mldoc-mode
+      (mldoc--setup-variables)
+    (mldoc--restore-variables)))
 
 (provide 'mldoc)
 ;;; mldoc.el ends here
