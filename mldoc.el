@@ -28,7 +28,8 @@
 ;; MLDoc integrates multiple ElDoc providers and helps inline documentation.
 
 ;;; Code:
-(require 'cl-lib)
+(eval-when-compile
+  (require 'cl-lib))
 (require 'eldoc)
 (require 'nadvice)
 
