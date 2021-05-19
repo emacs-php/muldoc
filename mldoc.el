@@ -1,10 +1,10 @@
 ;;; mldoc.el --- Multi ElDoc integration             -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2019  Friends of Emacs-PHP development
+;; Copyright (C) 2021  Friends of Emacs-PHP development
 
 ;; Author: USAMI Kenta <tadsan@zonu.me>
 ;; Created: 25 Jul 2019
-;; Version: 0.2.1
+;; Version: 0.3.0
 ;; Keywords: tools, extension
 ;; Homepage: https://github.com/emacs-php/mldoc
 ;; Package-Requires: ((emacs "24.4"))
