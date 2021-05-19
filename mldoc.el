@@ -41,6 +41,8 @@
   "When T, advice `eldoc-documentation-function' by MLDoc if it is set."
   :type 'boolean)
 
+(defvar mldoc-lighter " MLDoc")
+
 (defvar mldoc-default-eldoc-propertizers
   '((:function . ((face . font-lock-function-name-face)))
     (:return-type . ((face . font-lock-type-face)))
@@ -196,6 +198,7 @@ plist `values'
 ;;;###autoload
 (define-minor-mode mldoc-mode
   "Minor mode for Multi ElDoc."
+  :lighter mldoc-lighter
   (if mldoc-mode
       (mldoc--setup-variables)
     (mldoc--restore-variables)))
