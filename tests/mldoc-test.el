@@ -38,14 +38,14 @@
             ,(list ""))
            ("Spec has function value"
             ,(mldoc--build-list '(:foo ": " :function)
-                           :function "f" :values (list :foo "hoge"))
+                           :values (list :function "f" :foo "hoge"))
             ,(list "hoge" ": "
                    (propertize "f" 'face font-lock-function-name-face)))
            ("Spec has arg list"
-            ,(mldoc--build-list '(:function "(" (args ", ") ")")
-                           :function "f"
-                           :args '("a" "b" "c")
-                           :current-arg 2)
+            ,(mldoc--build-list '(:function "(" (params ", ") ")")
+                           :values (list :function "f")
+                           :params '("a" "b" "c")
+                           :current-param 2)
             ,(list (propertize "f" 'face font-lock-function-name-face)
                    "("
                    (concat  "a, " (propertize "b" 'face '(:weight bold)) ", c")
@@ -54,21 +54,20 @@
     (cl-loop for (desc actual expected) in data
              do (should (equal (cons desc expected) (cons desc actual))))))
 
-(ert-deftest mldoc-test--propertize-arg ()
+(ert-deftest mldoc-test--propertize-param ()
   (let ((data
-         ;; (mldoc--propertize-arg arg is-current-arg arg-spec)
+         ;; (mldoc--propertize-arg arg is-current-param arg-spec)
          `(("Simple argument"
-            ,(mldoc--propertize-arg '(:name "a") nil '(:name))
-            ,(list "a"))
+            ,(mldoc--propertize-param '(:name "a") nil '(:name))
+            "a")
            ("Simple argument and current argument"
-            ,(mldoc--propertize-arg '(:name "a") t '(:name))
-            ,(list (propertize "a" 'face '(:weight bold))))
+            ,(mldoc--propertize-param '(:name "a") t '(:name))
+            ,(propertize "a" 'face '(:weight bold)))
            ("Argument has :name and :type"
-            ,(mldoc--propertize-arg '(:name "a" :type "string")
+            ,(mldoc--propertize-param '(:name "a" :type "string")
                                nil
                                '(:name " / " :type))
-            ,(list "a" " / "
-                   (propertize "string" 'face font-lock-function-name-face))))))
+            ,(concat "a / " (propertize "string" 'face font-lock-function-name-face))))))
     (cl-loop for (desc actual expected) in data
              do (should (equal (cons desc expected) (cons desc actual))))))
 

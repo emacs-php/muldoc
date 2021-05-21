@@ -1,0 +1,4 @@
+foo(1, 2, 3);
+bar("hoge", "fuga", "piyo");
+echo SAMP_VERSION;
+echo M_PI;

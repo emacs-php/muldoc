@@ -14,7 +14,8 @@ MLDoc has APIs for end users and Lisp package developers.
 (defun my-foo-mode-setup ()
   "Setup function for `foo-mode'."
   (mldoc-mode 1)
-  (setq mldoc-documentation-functions '(mldoc-foo mldoc-html)))
+  (push mldoc-documentation-functions #'mldoc-foo)
+  (push mldoc-documentation-functions #'mldoc-html))
 
 (with-eval-after-load "foo-mode"
   (add-hook 'foo-mode-hook 'my-foo-mode-setup))
@@ -23,37 +24,38 @@ MLDoc has APIs for end users and Lisp package developers.
 *** MLDoc DSL
 **** Example
 #+BEGIN_SRC emacs-lisp
-(defcustom mldoc-foo-function-spec
-  '(return-type " " function "(" (args ", " :type " " :name) ")")
-  "MLDoc display spec for Foo function call."
+(defcustom foo-mldoc-function-form
+  '(return-type " " function "(" (params ", " :type " " :name) ")")
+  "MLDoc display format for Foo function call."
   :group 'mldoc-foo
   :type 'sexp)
 
-(define-mldoc mldoc-foo
+(define-mldoc foo-mldoc-func
   "MLDoc function for Foo language."
   ;; This function is extremely simplified, but represents the specification of
   ;; the value that an actual implementation should return.
-  (mldoc-list mldoc-foo-function-spec :function "print"
-              :args '((:type "string" :name "message"))
-              :current-arg 0))
+  (mldoc-list foo-mldoc-function-form
+              :params '((:type "string" :name "message"))
+              :current-param 0
+              :values (list :function "print")))
 #+END_SRC
 **** Format
-Actually the DSL is just a list.  Its structure is =(cons spec plist)=.
-***** spec
-*spec* is a notation for converting a list to a string.
-- ="string"=: Just combined with that value.
+Actually the DSL is just a list.  Its structure is =(cons form plist)=.
+***** form
+*form* is a notation for converting a list to a string.
+- =\"string\"=: Just combined with that value.
 - =:keyword=: The value passed as a keyword in =plist=.
 - =symbol=: Symbol is evaluated as a variable name.
-- =(args separator &optional argspec)=: This looks like a function, but combines =:args= with =separator=.
+- =(params separator &optional param-info)=: This looks like a function, but combines =:params= with =separator=.
   - *separator*: In languages similar to C, =", "= is assumed.
-  - *argspec*: spec for arguments.
+  - *paraminfo*: A plist for parameters.
 - =(eval ...)=: The expression following =eval= is evaluated as Emacs Lisp.
-- =(if cond then ...else)=, =(when cond ...body)==, =(unless cond ...body)=: Same as Emacs Lisp.
+- =(if cond then ...else)=, =(when cond ...body)=, =(unless cond ...body)=: Same as Emacs Lisp.
 - Any other list is evaluated as a Emacs Lisp expression.
 ***** plist
 It is an [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Property-Lists.html#Property-Lists][Property List]] with the following keys.
-- =:args=: List of =string= or =plist=.
-- =:current-arg=: 0-origin current position of argument list.
+- =:params=: List of =string= or =plist=.
+- =:current-param=: 0-origin current position of argument list.
 *** macro =(define-mldoc name docstring &rest body)=
 This macro is very similar to defun.
 It's actually just a defun wrapper, but it is responsible for converting between MLDoc DSL and ElDoc output formats.
