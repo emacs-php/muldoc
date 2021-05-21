@@ -46,6 +46,7 @@
 
 (defvar mldoc-default-eldoc-propertizers
   '((:function . ((face . font-lock-function-name-face)))
+    (:constant . ((face . font-lock-constant-face)))
     (:return-type . ((face . font-lock-type-face)))
     (:type . ((face . font-lock-type-face)))
     (:warning . ((face . font-lock-warning-face))))
@@ -62,7 +63,7 @@
 (defvar-local mldoc-propertizer* nil
   "Dynamic bound list of propertizers.")
 
-;; Utility functions
+;; Utility functions for users
 (defsubst mldoc-in-string ()
   "Return non-nil if inside a string.
 it is the character that will terminate the string, or t if the string should be terminated by a generic string delimiter."
@@ -88,32 +89,34 @@ The definition is (lambda ARGLIST [DOCSTRING] BODY...)."
            (mapconcat #'identity (apply #'mldoc--build-list doc) "")
          doc))))
 
-(defun mldoc--propertize-arg (arg is-current-arg arg-spec)
-  "Propertize ARG by IS-CURRENT-ARG and ARG-SPEC."
-  (cl-loop
-   for spec in arg-spec
-   collect
-   (if (stringp spec)
-       spec
-     (let ((v (plist-get arg spec)))
-       (if (null v)
-           ""
-         (if (and is-current-arg (eq :name spec))
-             (propertize v 'face '(:weight bold))
-           (mldoc--propertize-keyword arg spec)))))))
-
-(defun mldoc--propertize-args (args current-arg arg-separator &optional arg-spec)
-  "Return propertized string by ARGS list, CURRENT-ARG, ARG-SEPARATOR and ARG-SPEC."
+(defun mldoc--propertize-param (param is-current-param doc-form)
+  "Propertize PARAM by IS-CURRENT-PARAM and DOC-FORM."
   (mapconcat
-   #'append
-   (cl-loop for arg in args
-            for n = 0 then (1+ n)
-            append
-            (mldoc--propertize-arg
-             (if (stringp arg) (list :name arg) arg)
-             (eq current-arg n)
-             (or arg-spec (list :name))))
-   (or arg-separator ", ")))
+   (lambda (spec)
+    (if (stringp spec)
+        spec
+      (let ((v (plist-get param spec)))
+        (if (null v)
+            ""
+          (if (and is-current-param (eq :name spec))
+              (propertize v 'face '(:weight bold))
+            (mldoc--propertize-keyword param spec))))))
+   doc-form
+   ""))
+
+(defun mldoc--propertize-params (params current-param param-separator &optional doc-form)
+  "Return propertized string by PARAMS list, CURRENT-PARAM, PARAM-SEPARATOR and DOC-FORM."
+  (let ((n 0))
+    (mapconcat
+     (lambda (param)
+       (prog1
+           (mldoc--propertize-param
+            (if (stringp param) (list :name param) param)
+            (eq current-param n)
+            (or doc-form (list :name)))
+         (setq n (1+ n))))
+     params
+     (or param-separator ", "))))
 
 (defun mldoc--propertizers-to-list (propertizer)
   "Return list for function `propertize' by PROPERTIZER alist."
@@ -127,47 +130,44 @@ The definition is (lambda ARGLIST [DOCSTRING] BODY...)."
                   (funcall val)
                 val))
          (prop (cdr-safe (assq key mldoc-propertizer*))))
-    (if (null prop)
+    (if (not (and prop str))
         (or str "")
       (apply #'propertize str (mldoc--propertizers-to-list prop)))))
 
-(cl-defmacro mldoc-list (spec &key function propertizers args current-arg values)
+(cl-defmacro mldoc-list (form &key propertizers params current-param values)
   "Build a list acceptable by MLDoc."
-  `(list ,spec
-         :function ,function
+  `(list ,form
          :propertizers ,propertizers
-         :args ,args
-         :current-arg ,current-arg
+         :params ,params
+         :current-param ,current-param
          :values ,values))
 
-(cl-defun mldoc--build-list (spec &key function propertizers args current-arg values)
+(cl-defun mldoc--build-list (spec &key propertizers params current-param values)
   "Return a list of propertized string for ElDoc.
 
-integer `:current-arg'
+integer `:current-param'
     0-origin offset to current position of arguments.
 plist `values'
     Property list of (:name value)
 "
-  (setq values (plist-put values :function function))
-  (setq values (plist-put values :args args))
+  (setq values (plist-put values :params params))
   (let ((mldoc-propertizer*
          (append propertizers mldoc-default-eldoc-propertizers)))
     (cl-loop
      for s in spec collect
      (cond
+      ((null s) nil)
       ((stringp s) s)
-      ((symbolp s)
-       (if (not (keywordp s))
-           (symbol-value s)
-         (mldoc--propertize-keyword values s)))
-      ((listp s) (mldoc--evalute-spec s args current-arg))))))
+      ((keywordp s) (mldoc--propertize-keyword values s))
+      ((symbolp s) (symbol-value s))
+      ((listp s) (mldoc--evalute-spec s params current-param))))))
 
-(defun mldoc--evalute-spec (spec args current-arg)
-  "Evalute ARGS and embedded element of SPEC."
+(defun mldoc--evalute-spec (spec params current-param)
+  "Evalute PARAMS and embedded element of SPEC."
   (let ((f (car spec))
         (rest (cdr spec)))
     (cl-case f
-      (args (mldoc--propertize-args args current-arg (car rest) (cdr rest)))
+      (params (mldoc--propertize-params params current-param (car rest) (cdr rest)))
       (if (if (eval (car rest)) (eval (nth 1 rest)) (eval (cons 'progn (cddr rest)))))
       (when (when (eval (car rest)) (eval (cons 'progn (cdr rest)))))
       (unless (unless (eval (car rest)) (eval (cons 'progn (cdr rest)))))
