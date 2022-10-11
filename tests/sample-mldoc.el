@@ -35,17 +35,16 @@
 (require 'cc-langs)
 
 ;; Samp Language definitions:
-(defvar samp-builtin-functions
+(eval-and-compile
+  (defvar samp-builtin-functions
   '(("foo" . (("a" :type "int") ("b" :type "int") ("c" :type "int")))
     ("bar" . (("x" :type "str") ("y" :type "str") ("z" :type "str")))))
-
-(defvar samp-lang-keywords
-  '("echo"
-    "return"))
-
-(defvar samp-defined-constants
-  '(("SAMP_VERSION" "Version number of Samp language")
-    ("M_PI" "Approximation of pi (the ratio of a circle's circumference)")))
+  (defvar samp-lang-keywords
+    '("echo"
+      "return"))
+  (defvar samp-defined-constants
+    '(("SAMP_VERSION" "Version number of Samp language")
+      ("M_PI" "Approximation of pi (the ratio of a circle's circumference)"))))
 
 ;; Helper functions:
 ;; These functions need to be rewritten for your language syntax.
@@ -119,7 +118,7 @@
       (,(regexp-opt (mapcar #'car samp-defined-constants) 'symbols) 0 'font-lock-constant-face))))
 
 (define-derived-mode samp-mode prog-mode "Samp"
-  "Major mode for editing Samp code"
+  "Major mode for editing Samp code."
   :syntax-table samp-mode-syntax-table
   (setq-local font-lock-defaults '(samp-mode-font-lock-keywords)))
 
