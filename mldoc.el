@@ -124,7 +124,7 @@ PARAM-FORM is recursively expanded by `mldoc--build-list' as form."
 (defun mldoc--propertizers-to-list (propertizer)
   "Return list for function `propertize' by PROPERTIZER alist."
   (cl-loop for (p . sym) in propertizer
-           append (list p (symbol-value sym))))
+           nconc (list p (symbol-value sym))))
 
 (defun mldoc--propertize-keyword (values key)
   "Return propertized string KEY in VALUES plist."
