@@ -1,6 +1,6 @@
 ;;; mldoc.el --- Multi ElDoc integration             -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2021  Friends of Emacs-PHP development
+;; Copyright (C) 2022  Friends of Emacs-PHP development
 
 ;; Author: USAMI Kenta <tadsan@zonu.me>
 ;; Created: 25 Jul 2019
@@ -35,7 +35,7 @@
 
 ;; Custom variables:
 (defgroup mldoc nil
-  "Multi ElDoc integration"
+  "Multi ElDoc integration."
   :group 'tools)
 
 (defcustom mldoc-mode-advice-when-eldoc-is-set nil
@@ -66,11 +66,13 @@
 ;; Utility functions for users
 (defsubst mldoc-in-string ()
   "Return non-nil if inside a string.
-it is the character that will terminate the string, or t if the string should be terminated by a generic string delimiter."
+It is the character that will terminate the string, or t if the string should be
+terminated by a generic string delimiter."
   (nth 3 (syntax-ppss)))
 
 (defsubst mldoc-in-comment ()
-  "Return nil if outside a comment, t if inside a non-nestable comment, else an integer (the current comment nesting)."
+  "Return NIL if outside a comment, T if inside a non-nestable comment.
+Otherwise return an integer (the current comment nesting)."
   (nth 4 (syntax-ppss)))
 
 (defsubst mldoc-in-string-or-comment ()
@@ -104,8 +106,9 @@ The definition is (lambda ARGLIST [DOCSTRING] BODY...)."
    doc-form
    ""))
 
-(defun mldoc--propertize-params (params current-param param-separator &optional doc-form)
-  "Return propertized string by PARAMS list, CURRENT-PARAM, PARAM-SEPARATOR and DOC-FORM."
+(defun mldoc--propertize-params (params current-param param-separator &optional param-form)
+  "Return propertized string by PARAMS list, CURRENT-PARAM, PARAM-SEPARATOR.
+PARAM-FORM is recursively expanded by `mldoc--build-list' as form."
   (let ((n 0))
     (mapconcat
      (lambda (param)
@@ -113,7 +116,7 @@ The definition is (lambda ARGLIST [DOCSTRING] BODY...)."
            (mldoc--propertize-param
             (if (stringp param) (list :name param) param)
             (eq current-param n)
-            (or doc-form (list :name)))
+            (or param-form (list :name)))
          (setq n (1+ n))))
      params
      (or param-separator ", "))))
@@ -135,26 +138,34 @@ The definition is (lambda ARGLIST [DOCSTRING] BODY...)."
       (apply #'propertize str (mldoc--propertizers-to-list prop)))))
 
 (cl-defmacro mldoc-list (form &key propertizers params current-param values)
-  "Build a list acceptable by MLDoc."
+  "Build a list acceptable FORM by MLDoc.
+
+list FORM
+    List consisting of strings, keywords and expressions.
+alist PROPERTIZERS
+    Alist of propertize spec.
+list PARAMS
+    Repeat list or doc spec.
+integer CURRENT-PARAM
+    0-origin offset to current position of arguments.
+plist VALUES
+    Property list of (:name value)"
   `(list ,form
          :propertizers ,propertizers
          :params ,params
          :current-param ,current-param
          :values ,values))
 
-(cl-defun mldoc--build-list (spec &key propertizers params current-param values)
+(cl-defun mldoc--build-list (form &key propertizers params current-param values)
   "Return a list of propertized string for ElDoc.
 
-integer `:current-param'
-    0-origin offset to current position of arguments.
-plist `values'
-    Property list of (:name value)
-"
+See `mldoc-list' about FORM, PROPERTIZERS, PARAMS, CURRENT-PARAM, VALUES
+parameters."
   (setq values (plist-put values :params params))
   (let ((mldoc-propertizer*
          (append propertizers mldoc-default-eldoc-propertizers)))
     (cl-loop
-     for s in spec collect
+     for s in form collect
      (cond
       ((null s) nil)
       ((stringp s) s)
