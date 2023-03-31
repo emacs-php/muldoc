@@ -7,7 +7,7 @@
 ;; Version: 0.3.0
 ;; Keywords: tools, extension
 ;; Homepage: https://github.com/emacs-php/mldoc
-;; Package-Requires: ((emacs "24.4"))
+;; Package-Requires: ((emacs "25.1"))
 ;; License: GPL-3.0-or-later
 
 ;; This program is free software; you can redistribute it and/or modify
@@ -187,10 +187,9 @@ parameters."
 
 (defun mldoc-eldoc-function ()
   "ElDoc backend function by MLDoc package."
-  (let* ((mldoc-returns-string nil)
-         (documentation (cl-loop for f in mldoc-documentation-functions
-                                 thereis (funcall f))))
-    (when documentation
+  (let (mldoc-returns-string)
+    (when-let (documentation (cl-loop for f in mldoc-documentation-functions
+                                      thereis (funcall f)))
       (mapconcat #'identity (apply #'mldoc--build-list documentation) ""))))
 
 (defun mldoc--setup-variables ()
