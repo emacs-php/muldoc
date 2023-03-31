@@ -52,7 +52,7 @@
   "Return parameter information of current position."
   (let ((name (save-excursion
                 (beginning-of-line)
-                (symbol-name (symbol-at-point)))))
+                (thing-at-point 'symbol t))))
     (assoc-string name samp-builtin-functions)))
 
 (defun samp-current-arg-pos ()
@@ -99,7 +99,7 @@
   "MLDoc function for Foo language."
   ;; This function is extremely simplified, but represents the specification of
   ;; the value that an actual implementation should return.
-  (when-let (const (assoc (symbol-name (symbol-at-point)) samp-defined-constants))
+  (when-let (const (assoc (thing-at-point 'symbol t) samp-defined-constants))
     (let ((name (car const))
           (desc (cadr const)))
       (mldoc-list samp-mldoc-const-form
