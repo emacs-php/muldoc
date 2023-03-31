@@ -1,6 +1,6 @@
 EMACS ?= emacs
-ELS = mldoc.el
-AUTOLOADS = mldoc-autoloads.el
+ELS = muldoc.el
+AUTOLOADS = muldoc-autoloads.el
 ELCS = $(ELS:.el=.elc)
 
 %.elc: %.el
@@ -14,10 +14,10 @@ $(AUTOLOADS): $(ELS)
 	$(EMACS) -Q -batch -L . --eval \
 	"(progn \
 	   (require 'package) \
-	   (package-generate-autoloads \"mldoc\" default-directory))"
+	   (package-generate-autoloads \"muldoc\" default-directory))"
 
 clean:
 	rm -f $(ELCS) $(AUTOLOADS)
 
 test: clean all
-	$(EMACS) -Q -batch -L . -l tests/mldoc-test.el -f ert-run-tests-batch-and-exit
+	$(EMACS) -Q -batch -L . -l tests/muldoc-test.el -f ert-run-tests-batch-and-exit

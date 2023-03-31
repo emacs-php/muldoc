@@ -1,40 +1,40 @@
-* MLDoc - Multi ElDoc integration
-*MLDoc* extends ElDoc and makes function definition very easy.
+* MulDoc - Multi ElDoc integration
+*MulDoc* extends ElDoc and makes function definition very easy.
 ** What is ElDoc?
 [[https://www.emacswiki.org/emacs/ElDoc][ElDoc]] is a minor mode to show documentation in echo area.
 ElDoc function is implemented for several languages besides Emacs Lisp.
-** Why MLDoc?
-MLDoc solves ElDoc problem.
+** Why MulDoc?
+MulDoc solves ElDoc problem.
 - ElDoc can usually only register one or two functions.
 - ElDoc implementations are difficult to understand and tends to be untestable.
-MLDoc has APIs for end users and Lisp package developers.
+MulDoc has APIs for end users and Lisp package developers.
 ** API for users
-*Note*: no end-user MLDoc implementation yet.
+*Note*: no end-user MulDoc implementation yet.
 #+BEGIN_SRC emacs-lisp
 (defun my-foo-mode-setup ()
   "Setup function for `foo-mode'."
-  (mldoc-mode 1)
-  (push mldoc-documentation-functions #'mldoc-foo)
-  (push mldoc-documentation-functions #'mldoc-html))
+  (muldoc-mode 1)
+  (push muldoc-documentation-functions #'muldoc-foo)
+  (push muldoc-documentation-functions #'muldoc-html))
 
 (with-eval-after-load "foo-mode"
   (add-hook 'foo-mode-hook 'my-foo-mode-setup))
 #+END_SRC
 ** API for developers
-*** MLDoc DSL
+*** MulDoc DSL
 **** Example
 #+BEGIN_SRC emacs-lisp
-(defcustom foo-mldoc-function-form
+(defcustom foo-muldoc-function-form
   '(return-type " " function "(" (params ", " :type " " :name) ")")
-  "MLDoc display format for Foo function call."
-  :group 'mldoc-foo
+  "MulDoc display format for Foo function call."
+  :group 'muldoc-foo
   :type 'sexp)
 
-(define-mldoc foo-mldoc-func
-  "MLDoc function for Foo language."
+(define-muldoc foo-muldoc-func
+  "MulDoc function for Foo language."
   ;; This function is extremely simplified, but represents the specification of
   ;; the value that an actual implementation should return.
-  (mldoc-list foo-mldoc-function-form
+  (muldoc-list foo-muldoc-function-form
               :params '((:type "string" :name "message"))
               :current-param 0
               :values (list :function "print")))
@@ -56,6 +56,6 @@ Actually the DSL is just a list.  Its structure is =(cons form plist)=.
 It is an [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Property-Lists.html#Property-Lists][Property List]] with the following keys.
 - =:params=: List of =string= or =plist=.
 - =:current-param=: 0-origin current position of argument list.
-*** macro =(define-mldoc name docstring &rest body)=
+*** macro =(define-muldoc name docstring &rest body)=
 This macro is very similar to defun.
-It's actually just a defun wrapper, but it is responsible for converting between MLDoc DSL and ElDoc output formats.
+It's actually just a defun wrapper, but it is responsible for converting between MulDoc DSL and ElDoc output formats.

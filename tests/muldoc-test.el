@@ -1,6 +1,6 @@
-;;; mldoc-test.el --- Tests for MLDoc                -*- lexical-binding: t; -*-
+;;; muldoc-test.el --- Tests for MulDoc              -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2019  Friends of Emacs-PHP development
+;; Copyright (C) 2023  Friends of Emacs-PHP development
 
 ;; Author: USAMI Kenta <tadsan@zonu.me>
 ;; Created: 25 Jul 2019
@@ -21,28 +21,28 @@
 
 ;;; Commentary:
 
-;; Tests for MLDoc.
+;; Tests for MulDoc.
 
 ;;; Code:
 (require 'ert)
-(require 'mldoc)
+(require 'muldoc)
 (require 'cl-lib)
 
-(ert-deftest mldoc-test--build-list ()
+(ert-deftest muldoc-test--build-list ()
   (let ((data
          `(("Empty spec and no keywords"
-            ,(mldoc--build-list '())
+            ,(muldoc--build-list '())
             ,(list))
            ("Spec has a string"
-            ,(mldoc--build-list '(""))
+            ,(muldoc--build-list '(""))
             ,(list ""))
            ("Spec has function value"
-            ,(mldoc--build-list '(:foo ": " :function)
+            ,(muldoc--build-list '(:foo ": " :function)
                            :values (list :function "f" :foo "hoge"))
             ,(list "hoge" ": "
                    (propertize "f" 'face font-lock-function-name-face)))
            ("Spec has arg list"
-            ,(mldoc--build-list '(:function "(" (params ", ") ")")
+            ,(muldoc--build-list '(:function "(" (params ", ") ")")
                            :values (list :function "f")
                            :params '("a" "b" "c")
                            :current-param 2)
@@ -54,57 +54,57 @@
     (cl-loop for (desc actual expected) in data
              do (should (equal (cons desc expected) (cons desc actual))))))
 
-(ert-deftest mldoc-test--propertize-param ()
+(ert-deftest muldoc-test--propertize-param ()
   (let ((data
-         ;; (mldoc--propertize-arg arg is-current-param arg-spec)
+         ;; (muldoc--propertize-arg arg is-current-param arg-spec)
          `(("Simple argument"
-            ,(mldoc--propertize-param '(:name "a") nil '(:name))
+            ,(muldoc--propertize-param '(:name "a") nil '(:name))
             "a")
            ("Simple argument and current argument"
-            ,(mldoc--propertize-param '(:name "a") t '(:name))
+            ,(muldoc--propertize-param '(:name "a") t '(:name))
             ,(propertize "a" 'face '(:weight bold)))
            ("Argument has :name and :type"
-            ,(mldoc--propertize-param '(:name "a" :type "string")
+            ,(muldoc--propertize-param '(:name "a" :type "string")
                                nil
                                '(:name " / " :type))
             ,(concat "a / " (propertize "string" 'face font-lock-function-name-face))))))
     (cl-loop for (desc actual expected) in data
              do (should (equal (cons desc expected) (cons desc actual))))))
 
-(ert-deftest mldoc-test--evalute-spec ()
+(ert-deftest muldoc-test--evalute-spec ()
   (let ((data
          `(("if-spec passed `T' as cond, returns 1."
-            ,(mldoc--evalute-spec '(if (eq 1 1) 1 2) nil nil)
+            ,(muldoc--evalute-spec '(if (eq 1 1) 1 2) nil nil)
             1)
            ("if-spec passed `NIL' as cond, returns 2."
-            ,(mldoc--evalute-spec '(if (eq 1 2) 1 2) nil nil)
+            ,(muldoc--evalute-spec '(if (eq 1 2) 1 2) nil nil)
             2)
            ("if-spec passed `NIL' as cond and multiple else clause, returns 3."
-            ,(mldoc--evalute-spec '(if (eq 1 2) 1 2 3) nil nil)
+            ,(muldoc--evalute-spec '(if (eq 1 2) 1 2 3) nil nil)
             3)
            ("when-spec passed `T', return 1."
-            ,(mldoc--evalute-spec '(when (eq 1 1) 1) nil nil)
+            ,(muldoc--evalute-spec '(when (eq 1 1) 1) nil nil)
             1)
            ("when-spec passed `NIL', return NIL."
-            ,(mldoc--evalute-spec '(when (eq 1 2) 1) nil nil)
+            ,(muldoc--evalute-spec '(when (eq 1 2) 1) nil nil)
             nil)
            ("unless-spec passed `T', return `NIL'."
-            ,(mldoc--evalute-spec '(unless (eq 1 1) 1) nil nil)
+            ,(muldoc--evalute-spec '(unless (eq 1 1) 1) nil nil)
             nil)
            ("unless-spec passed `NIL', return 1."
-            ,(mldoc--evalute-spec '(unless (eq 1 2) 1) nil nil)
+            ,(muldoc--evalute-spec '(unless (eq 1 2) 1) nil nil)
             1)
            ("eval-spec passed `1', return 1."
-            ,(mldoc--evalute-spec '(eval 1) nil nil)
+            ,(muldoc--evalute-spec '(eval 1) nil nil)
             1)
            ("eval-spec passed `emacs-version', return value of emacs-version."
-            ,(mldoc--evalute-spec '(eval emacs-version) nil nil)
+            ,(muldoc--evalute-spec '(eval emacs-version) nil nil)
             ,emacs-version)
            ("function-spec passed `(symbol-value emacs-version)', return value of emacs-version."
-            ,(mldoc--evalute-spec '(symbol-value 'emacs-version) nil nil)
+            ,(muldoc--evalute-spec '(symbol-value 'emacs-version) nil nil)
             ,emacs-version))))
     (cl-loop for (desc actual expected) in data
              do (should (equal (cons desc expected) (cons desc actual))))))
 
-(provide 'mldoc-test)
-;;; mldoc-test.el ends here
+(provide 'muldoc-test)
+;;; muldoc-test.el ends here

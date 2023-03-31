@@ -1,6 +1,6 @@
-;;; sample-mldoc.el --- Example implementation of MLDoc  -*- lexical-binding: t; -*-
+;;; sample-muldoc.el --- Example implementation of MulDoc -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2021  Friends of Emacs-PHP development
+;; Copyright (C) 2023  Friends of Emacs-PHP development
 
 ;; Author: USAMI Kenta <tadsan@zonu.me>
 ;; Created: 25 Jul 2019
@@ -22,7 +22,7 @@
 
 ;;; Commentary:
 
-;; This file is sample implementation for MLDoc.
+;; This file is sample implementation for MulDoc.
 ;; "Samp" is a tiny programming language that similar to C.
 ;;
 ;;     foo(1, 2, 3);
@@ -31,7 +31,7 @@
 ;;
 
 ;;; Code:
-(require 'mldoc)
+(require 'muldoc)
 (require 'cc-langs)
 
 ;; Samp Language definitions:
@@ -70,39 +70,39 @@
                return i
                finally return i))))
 
-;; MLDoc implementations:
-(defcustom samp-mldoc-func-form
+;; MulDoc implementations:
+(defcustom samp-muldoc-func-form
   '(:function "(" (params ", " :type " " :name) ")")
-  "MLDoc display form for Samp function call."
-  :group 'samp-mldoc
+  "MulDoc display form for Samp function call."
+  :group 'samp-muldoc
   :type 'sexp)
 
-(defcustom samp-mldoc-const-form
+(defcustom samp-muldoc-const-form
   '(:constant ": " :desc)
-  "MLDoc display form for Samp constant."
-  :group 'samp-mldoc
+  "MulDoc display form for Samp constant."
+  :group 'samp-muldoc
   :type 'sexp)
 
-(define-mldoc samp-mldoc-func
-  "MLDoc function for Foo language."
+(define-muldoc samp-muldoc-func
+  "MulDoc function for Foo language."
   ;; This function is extremely simplified, but represents the specification of
   ;; the value that an actual implementation should return.
   (when-let (spec (samp-current-arg-info))
     (let ((name (car spec))
           (params (mapcar (lambda (s) (cons :name s)) (cdr spec))))
-      (mldoc-list samp-mldoc-func-form
+      (muldoc-list samp-muldoc-func-form
                   :params params
                   :current-param (samp-current-arg-pos)
                   :values (list :function name)))))
 
-(define-mldoc samp-mldoc-const
-  "MLDoc function for Foo language."
+(define-muldoc samp-muldoc-const
+  "MulDoc function for Foo language."
   ;; This function is extremely simplified, but represents the specification of
   ;; the value that an actual implementation should return.
   (when-let (const (assoc (thing-at-point 'symbol t) samp-defined-constants))
     (let ((name (car const))
           (desc (cadr const)))
-      (mldoc-list samp-mldoc-const-form
+      (muldoc-list samp-muldoc-const-form
                   :values (list :constant name :desc desc)))))
 
 ;; Major mode for *.samp
@@ -125,15 +125,15 @@
 ;; User function (~/.emacs.d/init.el):
 (defun user-setup-samp-mode ()
   "User defined function for hook."
-  (mldoc-mode +1)
-  (add-to-list 'mldoc-documentation-functions #'samp-mldoc-func)
-  (add-to-list 'mldoc-documentation-functions #'samp-mldoc-const))
+  (muldoc-mode +1)
+  (add-to-list 'muldoc-documentation-functions #'samp-muldoc-func)
+  (add-to-list 'muldoc-documentation-functions #'samp-muldoc-const))
 
-(with-eval-after-load "sample-mldoc"
+(with-eval-after-load "sample-muldoc"
   (add-hook 'samp-mode-hook #'user-setup-samp-mode))
 
 ;;;###autoload
 (add-to-list 'auto-mode-alist '("\\.samp\\'" . samp-mode) t)
 
-(provide 'sample-mldoc)
-;;; sample-mldoc.el ends here
+(provide 'sample-muldoc)
+;;; sample-muldoc.el ends here
