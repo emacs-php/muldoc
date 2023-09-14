@@ -2,3 +2,5 @@
 *~
 /*-autoloads.el
 /.cask/
+/.eask/
+/dist

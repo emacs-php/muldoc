@@ -1,23 +1,22 @@
 EMACS ?= emacs
-ELS = muldoc.el
-AUTOLOADS = muldoc-autoloads.el
-ELCS = $(ELS:.el=.elc)
+EASK ?= eask
 
-%.elc: %.el
-	$(EMACS) -Q -batch -L . -f batch-byte-compile $<
+install:
+	$(EASK) package
+	$(EASK) install
 
-all: autoloads $(ELCS)
+compile:
+	$(EASK) compile
 
-autoloads: $(AUTOLOADS)
+ci: clean autoloads install compile
 
-$(AUTOLOADS): $(ELS)
-	$(EMACS) -Q -batch -L . --eval \
-	"(progn \
-	   (require 'package) \
-	   (package-generate-autoloads \"muldoc\" default-directory))"
+all: autoloads compile
+
+autoloads:
+	$(EASK) generate autoloads
 
 clean:
-	rm -f $(ELCS) $(AUTOLOADS)
+	$(EASK) clean all
 
 test: clean all
-	$(EMACS) -Q -batch -L . -l tests/muldoc-test.el -f ert-run-tests-batch-and-exit
+	$(EASK) test ert tests/muldoc-test.el
