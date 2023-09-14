@@ -48,7 +48,4 @@ jobs:
         version: 'snapshot'
 
     - name: Run tests
-      run: |
-        eask package
-        eask install
-        eask compile
+      run: make ci
