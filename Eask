@@ -1,3 +1,5 @@
+;; -*- mode: eask; lexical-binding: t -*-
+
 (package "muldoc"
          "0.4.0"
          "Multi ElDoc integration")
